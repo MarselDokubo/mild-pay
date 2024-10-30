@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { BrandLogo } from "~/components/logo";
 import React from "react";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,8 +30,12 @@ export function Navbar() {
           About
         </Link>
         <span className="text-lg">
-          <Link href="/dashboard">Dashboard</Link>
-          <Button>Login</Button>
+          <SignedIn>
+            <Link href="/dashboard">Dashboard</Link>
+          </SignedIn>
+          <SignedOut>
+            <SignInButton>Login</SignInButton>
+          </SignedOut>
         </span>
       </nav>
     </header>
