@@ -1,4 +1,3 @@
-export type TierNames = keyof typeof subscriptionTiers;
 export type PaidTierNames = Exclude<TierNames, "Free">;
 
 export const subscriptionTiers = [
@@ -40,3 +39,6 @@ export const subscriptionTiers = [
     canRemoveBranding: true,
   },
 ] as const;
+
+export const tierNames = subscriptionTiers.map((_) => _.name);
+export type TierNames = (typeof tierNames)[number];
