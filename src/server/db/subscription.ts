@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "~/drizzle/db";
-import { UserSubscriptionTable } from "~/drizzle/schema";
+import { ProductTable, UserSubscriptionTable } from "~/drizzle/schema";
 
 export async function createUserSubscription(
   data: typeof UserSubscriptionTable.$inferInsert
@@ -16,4 +17,13 @@ export async function createUserSubscription(
     });
 
   return newSubscription;
+}
+
+export async function deleteUser(clerkUserId: string) {
+  db.batch([
+    db
+      .delete(UserSubscriptionTable)
+      .where(eq(UserSubscriptionTable.clerkUserId, clerkUserId)),
+    db.delete(ProductTable).where(eq(ProductTable.clerkUserId, clerkUserId)),
+  ]);
 }

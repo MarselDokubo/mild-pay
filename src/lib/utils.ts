@@ -12,3 +12,7 @@ const compactNumberFormatter = new Intl.NumberFormat(undefined, {
 export function formatCompactNumber(number: number) {
   return compactNumberFormatter.format(number);
 }
+
+export function removeTrailingSlash(path: string) {
+  return path.replace(/\/$/, "");
+}
