@@ -17,3 +17,20 @@ export async function createProduct(
   const { id } = await db.createProduct({ ...data, clerkUserId: userId });
   redirect(`/dashboard/products/${id}/edit?tab=countries`);
 }
+
+export async function deleteProduct(id: string) {
+  const { userId } = await auth();
+  const errorMessage = "There was an error deleting your product";
+  const successMessage = "Successfully deleted your product";
+
+  if (userId == null) {
+    return { error: true, message: errorMessage };
+  }
+
+  const isSuccess = await db.deleteProduct({ id, userId });
+
+  return {
+    error: !isSuccess,
+    message: isSuccess ? successMessage : errorMessage,
+  };
+}
