@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import CountryDiscountsForm from "~/app/dashboard/_components/form/country-discount-form";
+import { ProductCustomizationForm } from "~/app/dashboard/_components/form/product-customization-form";
 import { ProductDetailsForm } from "~/app/dashboard/_components/form/product-details-form";
 import { PageWithBackButton } from "~/app/dashboard/_components/page-with-back-button";
 import {
@@ -11,7 +12,11 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getProduct, getProductCountryGroups } from "~/server/db/products";
+import {
+  getProduct,
+  getProductCountryGroups,
+  getProductCustomization,
+} from "~/server/db/products";
 
 export default async function Page({
   params: { id: productId },
@@ -41,6 +46,9 @@ export default async function Page({
         </TabsContent>
         <TabsContent value="countries">
           <CountryTab productId={productId} userId={userId} />
+        </TabsContent>
+        <TabsContent value="customization">
+          <CustomizationsTab productId={productId} userId={userId} />
         </TabsContent>
       </Tabs>
     </PageWithBackButton>
@@ -91,6 +99,33 @@ async function CountryTab({
         <CountryDiscountsForm
           productId={productId}
           countryGroups={countryGroups}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+async function CustomizationsTab({
+  productId,
+  userId,
+}: {
+  productId: string;
+  userId: string;
+}) {
+  const customization = await getProductCustomization(userId, productId);
+
+  if (customization == null) return notFound();
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Banner Customization</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ProductCustomizationForm
+          canRemoveBranding={true}
+          canCustomizeBanner={true}
+          customization={customization}
         />
       </CardContent>
     </Card>

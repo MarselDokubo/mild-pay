@@ -1,6 +1,7 @@
 "use server";
 import {
   productCountryDiscountsSchema,
+  productCustomizationSchema,
   productDetailsSchema,
 } from "~/schemas/products";
 import { z } from "zod";
@@ -81,4 +82,25 @@ export async function updateCountryDiscounts(
   await db.updateCountryDiscounts(deleteIds, insert, { productId: id, userId });
 
   return { error: false, message: "Country discounts saved" };
+}
+
+export async function updateProductCustomization(
+  id: string,
+  unsafeData: z.infer<typeof productCustomizationSchema>
+) {
+  const { userId } = await auth();
+  const { success, data } = productCustomizationSchema.safeParse(unsafeData);
+  // const canCustomize = await canCustomizeBanner(userId);
+  const canCustomize = true;
+
+  if (!success || userId == null || !canCustomize) {
+    return {
+      error: true,
+      message: "There was an error updating your banner",
+    };
+  }
+
+  await db.updateProductCustomization(data, { productId: id, userId });
+
+  return { error: false, message: "Banner updated" };
 }
