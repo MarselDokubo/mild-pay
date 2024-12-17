@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/drizzle/db";
 import { ProductTable, UserSubscriptionTable } from "~/drizzle/schema";
+import { CACHE_TAGS, revalidateCache } from "~/lib/cache";
 
 export async function createUserSubscription(
   data: typeof UserSubscriptionTable.$inferInsert
@@ -16,6 +17,11 @@ export async function createUserSubscription(
       userId: UserSubscriptionTable.clerkUserId,
     });
 
+  revalidateCache({
+    tag: CACHE_TAGS.subscriptions,
+    userId: newSubscription.userId,
+    id: newSubscription.id,
+  });
   return newSubscription;
 }
 
