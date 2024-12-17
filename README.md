@@ -2,7 +2,7 @@ Visit [Mild Pay](https://localhost:3000).
 
 ## Description
 
-Mild pay is a one of a kind inclusive subscription platform built for developers to manage cross-continent payments.
+Mild pay is a one of a kind inclusive subscription platform built for developers to manage cross-continent payments. MildPayy promotes inclusivity and ease of access, no matter where people are in the world it is our idea that they get a chance at a fair price. With MildPayy you can offer international prices to different international customers based on their monetary value.
 
 ## Getting Started
 
