@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "~/drizzle/db";
-import { revalidateCache } from "~/lib/cache";
+import { getIdTag, revalidateCache } from "~/lib/cache";
 import { ProductCustomizationTable, ProductTable } from "~/drizzle/schema";
 import { CACHE_TAGS, getUserTag } from "~/lib/cache";
 import { productDetailsSchema } from "~/schemas/products";
@@ -25,6 +25,21 @@ const _getProducts = async (userId: string, { limit }: { limit?: number }) => {
 };
 
 // _getProducts is cached internally and exposed using getProducts
+
+export async function getProduct(productId: string, userId: string) {
+  const productTag = getIdTag(productId, CACHE_TAGS.products);
+  const cacheFn = unstable_cache(_getProduct, undefined, {
+    tags: [productTag],
+  });
+  return cacheFn(productId, userId);
+}
+
+const _getProduct = async (productId: string, userId: string) => {
+  return await db.query.ProductTable.findFirst({
+    where: ({ clerkUserId, id }, { eq, and }) =>
+      and(eq(clerkUserId, userId), eq(id, productId)),
+  });
+};
 
 export async function createProduct(product: typeof ProductTable.$inferInsert) {
   const [newProduct] = await db
