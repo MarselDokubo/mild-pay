@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
+import { subscriptionTiers } from "~/data/subscription-tiers";
 import { db } from "~/drizzle/db";
 import { ProductTable, UserSubscriptionTable } from "~/drizzle/schema";
-import { CACHE_TAGS, revalidateCache } from "~/lib/cache";
+import { CACHE_TAGS, getUserTag, revalidateCache } from "~/lib/cache";
 
 export async function createUserSubscription(
   data: typeof UserSubscriptionTable.$inferInsert
@@ -18,7 +20,7 @@ export async function createUserSubscription(
     });
 
   revalidateCache({
-    tag: CACHE_TAGS.subscriptions,
+    tag: CACHE_TAGS.subscription,
     userId: newSubscription.userId,
     id: newSubscription.id,
   });
@@ -32,4 +34,26 @@ export async function deleteUser(clerkUserId: string) {
       .where(eq(UserSubscriptionTable.clerkUserId, clerkUserId)),
     db.delete(ProductTable).where(eq(ProductTable.clerkUserId, clerkUserId)),
   ]);
+}
+
+export async function getUserSubscriptionTier(userId: string) {
+  const subscription = await getUserSubscription(userId);
+
+  if (subscription == null) throw new Error("User has no subscription");
+
+  return subscriptionTiers[subscription.tier];
+}
+
+export async function getUserSubscription(userId: string) {
+  const cacheFn = unstable_cache(_getUserSubscription, undefined, {
+    tags: [getUserTag(userId, CACHE_TAGS.subscription)],
+  });
+
+  return cacheFn(userId);
+}
+
+async function _getUserSubscription(userId: string) {
+  return await db.query.UserSubscriptionTable.findFirst({
+    where: ({ clerkUserId }, { eq }) => eq(clerkUserId, userId),
+  });
 }

@@ -20,6 +20,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Switch } from "~/components/ui/switch";
+import { NoPermissionCard } from "~/components/no-permission-card";
 
 export function ProductCustomizationForm({
   customization,
@@ -77,7 +78,10 @@ export function ProductCustomizationForm({
         />
       </div>
       {!canRemoveBranding && (
-        <div className="mt-8">{/* <NoPermissionCard /> */}</div>
+        <div className="mt-8">
+          {" "}
+          <NoPermissionCard />{" "}
+        </div>
       )}
       <Form {...form}>
         <form
