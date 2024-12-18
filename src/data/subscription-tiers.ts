@@ -1,7 +1,10 @@
+import { env } from "./env/server";
+
+export type TierNames = keyof typeof subscriptionTiers;
 export type PaidTierNames = Exclude<TierNames, "Free">;
 
-export const subscriptionTiers = [
-  {
+export const subscriptionTiers = {
+  Free: {
     name: "Free",
     priceInCents: 0,
     maxNumberOfProducts: 1,
@@ -9,9 +12,8 @@ export const subscriptionTiers = [
     canAccessAnalytics: false,
     canCustomizeBanner: false,
     canRemoveBranding: false,
-    stripePriceId: null,
   },
-  {
+  Basic: {
     name: "Basic",
     priceInCents: 1900,
     maxNumberOfProducts: 5,
@@ -20,7 +22,7 @@ export const subscriptionTiers = [
     canCustomizeBanner: false,
     canRemoveBranding: true,
   },
-  {
+  Standard: {
     name: "Standard",
     priceInCents: 4900,
     maxNumberOfProducts: 30,
@@ -29,7 +31,7 @@ export const subscriptionTiers = [
     canCustomizeBanner: true,
     canRemoveBranding: true,
   },
-  {
+  Premium: {
     name: "Premium",
     priceInCents: 9900,
     maxNumberOfProducts: 50,
@@ -38,7 +40,11 @@ export const subscriptionTiers = [
     canCustomizeBanner: true,
     canRemoveBranding: true,
   },
-] as const;
+} as const;
 
-export const tierNames = subscriptionTiers.map((_) => _.name);
-export type TierNames = (typeof tierNames)[number];
+export const subscriptionTiersInOrder = [
+  subscriptionTiers.Free,
+  subscriptionTiers.Basic,
+  subscriptionTiers.Standard,
+  subscriptionTiers.Premium,
+] as const;

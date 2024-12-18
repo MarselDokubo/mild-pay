@@ -17,6 +17,7 @@ import {
   getProductCountryGroups,
   getProductCustomization,
 } from "~/server/db/products";
+import { canCustomizeBanner, canRemoveBranding } from "~/server/permisions";
 
 export default async function Page({
   params: { id: productId },
@@ -123,8 +124,8 @@ async function CustomizationsTab({
       </CardHeader>
       <CardContent>
         <ProductCustomizationForm
-          canRemoveBranding={true}
-          canCustomizeBanner={true}
+          canRemoveBranding={await canRemoveBranding(userId)}
+          canCustomizeBanner={await canCustomizeBanner(userId)}
           customization={customization}
         />
       </CardContent>
