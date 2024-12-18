@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "~/drizzle/db";
 import { getGlobalTag, getIdTag, revalidateCache } from "~/lib/cache";
@@ -234,4 +234,21 @@ export async function updateProductCustomization(
     userId,
     id: productId,
   });
+}
+
+export function getProductCount(userId: string) {
+  const cacheFn = unstable_cache(_getProductCount, undefined, {
+    tags: [getUserTag(userId, CACHE_TAGS.products)],
+  });
+
+  return cacheFn(userId);
+}
+
+async function _getProductCount(userId: string) {
+  const counts = await db
+    .select({ productCount: count() })
+    .from(ProductTable)
+    .where(eq(ProductTable.clerkUserId, userId));
+
+  return counts[0]?.productCount ?? 0;
 }
