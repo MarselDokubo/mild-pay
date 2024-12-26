@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, SQL } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { subscriptionTiers } from "~/data/subscription-tiers";
 import { db } from "~/drizzle/db";
@@ -56,4 +56,26 @@ async function _getUserSubscription(userId: string) {
   return await db.query.UserSubscriptionTable.findFirst({
     where: ({ clerkUserId }, { eq }) => eq(clerkUserId, userId),
   });
+}
+
+export async function updateUserSubscription(
+  where: SQL,
+  data: Partial<typeof UserSubscriptionTable.$inferInsert>
+) {
+  const [updatedSubscription] = await db
+    .update(UserSubscriptionTable)
+    .set(data)
+    .where(where)
+    .returning({
+      id: UserSubscriptionTable.id,
+      userId: UserSubscriptionTable.clerkUserId,
+    });
+
+  if (updatedSubscription != null) {
+    revalidateCache({
+      tag: CACHE_TAGS.subscription,
+      userId: updatedSubscription.userId,
+      id: updatedSubscription.id,
+    });
+  }
 }
