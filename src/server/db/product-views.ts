@@ -2,7 +2,7 @@ import { and, count, eq, gte } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "~/drizzle/db";
 import { ProductTable, ProductViewTable } from "~/drizzle/schema";
-import { CACHE_TAGS, getUserTag } from "~/lib/cache";
+import { CACHE_TAGS, getUserTag, revalidateCache } from "~/lib/cache";
 
 export function getProductViewCount(userId: string, startDate: Date) {
   const cacheFn = unstable_cache(_getProductViewCount, undefined, {
@@ -25,4 +25,27 @@ async function _getProductViewCount(userId: string, startDate: Date) {
     );
 
   return counts[0]?.pricingViewCount ?? 0;
+}
+
+export async function createProductView({
+  productId,
+  countryId,
+  userId,
+}: {
+  productId: string;
+  countryId?: string;
+  userId: string;
+}) {
+  const [newRow] = await db
+    .insert(ProductViewTable)
+    .values({
+      productId: productId,
+      visitedAt: new Date(),
+      countryId: countryId,
+    })
+    .returning({ id: ProductViewTable.id });
+
+  if (newRow != null) {
+    revalidateCache({ tag: CACHE_TAGS.productViews, userId, id: newRow.id });
+  }
 }
